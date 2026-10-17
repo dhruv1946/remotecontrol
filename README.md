@@ -7,7 +7,7 @@ A modern, high-contrast monochrome Flutter application for controlling an O Gene
 - **Monochrome Dark Aesthetics**: Pure black and white styling with high-contrast active states.
 - **Full AC Controls**:
   - **Power**: Instant toggle with animated visual state.
-  - **Temperature Stepper**: Precision 16°C – 30°C stepper with live range pip indicators and temperature status.
+  - **Temperature Stepper**: Precision 18°C – 32°C stepper with live range pip indicators and temperature status.
   - **Mode Selector**: Auto, Cool, Dry, and Fan with high-contrast active feedback.
   - **Fan Speed**: Segmented speeds (Auto, Low, Medium, High) with animated rotating fans.
   - **Airflow & Louver Controls**:
