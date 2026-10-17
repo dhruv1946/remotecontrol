@@ -294,7 +294,7 @@ class _TemperatureHero extends StatelessWidget {
                 Expanded(
                   child: _TempButton(
                     label: '−',
-                    enabled: enabled && data.temperature > 16,
+                    enabled: enabled && data.temperature > 18,
                     onTap: () {
                       HapticFeedback.lightImpact();
                       context.read<AcController>().decrementTemp();
@@ -305,7 +305,7 @@ class _TemperatureHero extends StatelessWidget {
                 Expanded(
                   child: _TempButton(
                     label: '+',
-                    enabled: enabled && data.temperature < 30,
+                    enabled: enabled && data.temperature < 32,
                     onTap: () {
                       HapticFeedback.lightImpact();
                       context.read<AcController>().incrementTemp();
@@ -402,13 +402,13 @@ class _TempRangePips extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text('16°', style: Theme.of(context).textTheme.labelSmall),
+        Text('18°', style: Theme.of(context).textTheme.labelSmall),
         const SizedBox(width: 8),
         Expanded(
           child: Row(
             children: List.generate(15, (i) {
-              final active = enabled && i < (temperature - 16);
-              final isCurrent = enabled && i == (temperature - 16 - 1);
+              final active = enabled && i <= (temperature - 18);
+              final isCurrent = enabled && i == (temperature - 18);
               return Expanded(
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
@@ -427,7 +427,7 @@ class _TempRangePips extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        Text('30°', style: Theme.of(context).textTheme.labelSmall),
+        Text('32°', style: Theme.of(context).textTheme.labelSmall),
       ],
     );
   }

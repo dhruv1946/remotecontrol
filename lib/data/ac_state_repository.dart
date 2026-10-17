@@ -32,7 +32,7 @@ abstract class AcStateRepository {
       updateState(currentState.copyWith(isOn: !currentState.isOn));
 
   Future<void> setTemperature(int temp) {
-    final clamped = temp.clamp(16, 30);
+    final clamped = temp.clamp(18, 32);
     return updateState(currentState.copyWith(temperature: clamped));
   }
 

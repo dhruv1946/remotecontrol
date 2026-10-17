@@ -24,7 +24,7 @@ enum FanSpeed {
 /// Immutable snapshot of the AC's current state.
 class AcState {
   final bool isOn;
-  final int temperature; // 16–30 °C
+  final int temperature; // 18–32 °C
   final AcMode mode;
   final FanSpeed fanSpeed;
   final bool swingEnabled;
