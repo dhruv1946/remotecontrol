@@ -20,8 +20,6 @@ class AppTheme {
   // ── Monochrome Accents ────────────────────────────────────────────────
   static const Color white         = Color(0xFFFFFFFF);
   static const Color whiteDim      = Color(0xFFD4D4D4);
-  static const Color cyan          = Color(0xFFFFFFFF); // compatibility alias
-  static const Color green         = Color(0xFFFFFFFF); // compatibility alias
 
   // Gradient for active mode card (Pure White to Crisp Off-White)
   static const LinearGradient activeGradient = LinearGradient(
@@ -31,8 +29,6 @@ class AppTheme {
   );
 
   // ── Shadows / glows (Crisp White Glow) ────────────────────────────────
-  static List<BoxShadow> cyanGlow({double intensity = 1.0}) => whiteGlow(intensity: intensity);
-
   static List<BoxShadow> whiteGlow({double intensity = 1.0}) => [
     BoxShadow(
       color: Colors.white.withValues(alpha: 0.16 * intensity),

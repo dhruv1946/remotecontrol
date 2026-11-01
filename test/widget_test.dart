@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:remote_control/main.dart';
-import 'package:remote_control/data/mock_ac_state_repository.dart';
+import 'mocks/mock_ac_state_repository.dart';
 import 'package:remote_control/models/ac_state.dart';
 
 void main() {
