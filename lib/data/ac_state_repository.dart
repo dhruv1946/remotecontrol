@@ -19,6 +19,13 @@ abstract class AcStateRepository {
   /// This is useful for initialisation before the stream emits.
   AcState get currentState;
 
+  /// Whether the repository is currently awaiting remote confirmation
+  /// (e.g. waiting for desiredState to be reflected in confirmedState).
+  bool get isSyncing => false;
+
+  /// Stream emitting syncing status changes (true while syncing, false when idle).
+  Stream<bool> get isSyncingStream => Stream.value(false);
+
   /// Sends a full state update to the underlying data source.
   /// The implementation is responsible for persisting and broadcasting
   /// the change through [stateStream].

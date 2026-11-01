@@ -12,18 +12,19 @@ import '../models/ac_state.dart';
 class AcController extends ChangeNotifier {
   AcController(this._repository) {
     _state = _repository.currentState;
+    _isSyncing = _repository.isSyncing;
     _subscription = _repository.stateStream.listen(_onStateChanged);
+    _syncSubscription = _repository.isSyncingStream.listen(_onSyncChanged);
   }
 
   final AcStateRepository _repository;
   late AcState _state;
   StreamSubscription<AcState>? _subscription;
+  StreamSubscription<bool>? _syncSubscription;
 
-  /// Whether an action is currently in flight (for loading indicators).
-  bool _busy = false;
+  bool _isSyncing = false;
 
-  AcState get state => _state;
-  bool get busy => _busy;
+  bool get isSyncing => _isSyncing || _repository.isSyncing;
 
   // ── Convenience getters for the UI ────────────────────────────────
 
@@ -50,12 +51,10 @@ class AcController extends ChangeNotifier {
   // ── Internals ─────────────────────────────────────────────────────
 
   Future<void> _exec(Future<void> Function() action) async {
-    _busy = true;
-    notifyListeners();
     try {
       await action();
+      _state = _repository.currentState;
     } finally {
-      _busy = false;
       notifyListeners();
     }
   }
@@ -67,9 +66,17 @@ class AcController extends ChangeNotifier {
     }
   }
 
+  void _onSyncChanged(bool syncing) {
+    if (_isSyncing != syncing) {
+      _isSyncing = syncing;
+      notifyListeners();
+    }
+  }
+
   @override
   void dispose() {
     _subscription?.cancel();
+    _syncSubscription?.cancel();
     super.dispose();
   }
 }

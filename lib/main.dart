@@ -1,16 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'controllers/ac_controller.dart';
 import 'data/ac_state_repository.dart';
-import 'data/mock_ac_state_repository.dart';
+import 'data/firebase_ac_state_repository.dart';
+import 'firebase_options.dart';
 import 'models/ac_state.dart';
 import 'ui/remote_screen.dart';
 import 'ui/theme.dart';
 
-void main() {
-  // ─── Swap this for a FirebaseAcStateRepository later ───
-  final AcStateRepository repository = MockAcStateRepository(
+Future<void> ensureSignedIn() async {
+  try {
+    final auth = FirebaseAuth.instance;
+    if (auth.currentUser == null) {
+      await auth.signInAnonymously();
+    }
+  } catch (_) {}
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  await ensureSignedIn();
+
+  // ─── Firebase Realtime Database repository ───
+  final AcStateRepository repository = FirebaseAcStateRepository(
     initialState: const AcState(
       isOn: true,
       temperature: 24,

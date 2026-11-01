@@ -56,8 +56,8 @@ class _HeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<AcController, ({bool isOn, AcMode mode})>(
-      selector: (_, c) => (isOn: c.isOn, mode: c.mode),
+    return Selector<AcController, ({bool isOn, AcMode mode, bool isSyncing})>(
+      selector: (_, c) => (isOn: c.isOn, mode: c.mode, isSyncing: c.isSyncing),
       builder: (context, data, _) {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
@@ -126,6 +126,44 @@ class _HeaderCard extends StatelessWidget {
                               : 'Standby',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
+                        if (data.isSyncing) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.25),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(
+                                  width: 8,
+                                  height: 8,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 1.5,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Syncing',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        fontSize: 10,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ],
