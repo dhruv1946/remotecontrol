@@ -21,6 +21,7 @@ class FirebaseAcStateRepository extends AcStateRepository {
     AcState initialState = const AcState(),
     this.syncTimeout = const Duration(seconds: 15),
   })  : _currentState = initialState,
+        _lastConfirmedState = initialState,
         _database = database ??
             FirebaseDatabase.instanceFor(
               app: Firebase.app(),
@@ -57,6 +58,7 @@ class FirebaseAcStateRepository extends AcStateRepository {
   Timer? _syncTimeoutTimer;
 
   AcState _currentState;
+  AcState _lastConfirmedState;
   AcState? _pendingDesiredState;
   bool _isSyncing = false;
 
@@ -78,6 +80,7 @@ class FirebaseAcStateRepository extends AcStateRepository {
   /// and marks repository as [isSyncing] until `/confirmedState` emits matching values.
   @override
   Future<void> updateState(AcState newState) async {
+    final rollbackState = _currentState;
     _pendingDesiredState = newState;
     _currentState = newState;
     if (!_stateController.isClosed) {
@@ -91,6 +94,11 @@ class FirebaseAcStateRepository extends AcStateRepository {
       if (_isSyncing) {
         _setSyncing(false);
         _pendingDesiredState = null;
+        // Roll back to last confirmed state if device never confirmed
+        _currentState = _lastConfirmedState;
+        if (!_stateController.isClosed) {
+          _stateController.add(_lastConfirmedState);
+        }
       }
     });
 
@@ -106,11 +114,15 @@ class FirebaseAcStateRepository extends AcStateRepository {
 
     try {
       await _desiredRef.set(payload);
-    } catch (_) {
-      // Reset syncing state on write failure
+    } catch (e) {
+      // Reset syncing state on write failure and roll back optimistic update
       _syncTimeoutTimer?.cancel();
       _setSyncing(false);
       _pendingDesiredState = null;
+      _currentState = rollbackState;
+      if (!_stateController.isClosed) {
+        _stateController.add(rollbackState);
+      }
       rethrow;
     }
   }
@@ -142,27 +154,28 @@ class FirebaseAcStateRepository extends AcStateRepository {
 
     if (value is Map) {
       final confirmed = _stateFromMap(value);
+      _lastConfirmedState = confirmed;
 
-      _currentState = confirmed;
-      if (!_stateController.isClosed) {
-        // Only push the confirmed state to the UI if we're not waiting for it
-        // to match a pending desired state — otherwise the stale confirmed value
-        // would briefly revert the optimistic UI update the user just made.
-        if (!_isSyncing || _pendingDesiredState == null) {
-          _stateController.add(confirmed);
-        }
-      }
-
-      // Check if confirmedState matches our pending user request
       if (_isSyncing && _pendingDesiredState != null) {
+        // If incoming confirmed state matches the pending user request, sync complete!
         if (_matchesDesired(confirmed, _pendingDesiredState!)) {
           _syncTimeoutTimer?.cancel();
           _pendingDesiredState = null;
           _setSyncing(false);
-          // Now that the device has confirmed, push the final state to the UI
+          _currentState = confirmed;
           if (!_stateController.isClosed) {
             _stateController.add(confirmed);
           }
+        }
+        // If it doesn't match yet, it's an older/intermediate confirmed state.
+        // We DO NOT overwrite _currentState here, because the user has an in-flight
+        // desired state. Overwriting _currentState would cause the next user click
+        // to read a stale currentState.copyWith(...)!
+      } else {
+        // No pending user action; hardware or another remote updated the state.
+        _currentState = confirmed;
+        if (!_stateController.isClosed) {
+          _stateController.add(confirmed);
         }
       }
     }

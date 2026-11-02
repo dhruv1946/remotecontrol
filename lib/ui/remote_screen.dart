@@ -15,6 +15,27 @@ class RemoteScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final errorMessage = context.select<AcController, String?>((c) => c.errorMessage);
+    if (errorMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage, style: const TextStyle(color: Colors.white)),
+            backgroundColor: const Color(0xFF2C2C2E),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: 'DISMISS',
+              textColor: Colors.white,
+              onPressed: () => context.read<AcController>().clearError(),
+            ),
+          ),
+        );
+        context.read<AcController>().clearError();
+      });
+    }
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,

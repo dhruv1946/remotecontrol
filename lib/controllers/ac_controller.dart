@@ -50,10 +50,25 @@ class AcController extends ChangeNotifier {
 
   // ── Internals ─────────────────────────────────────────────────────
 
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  void clearError() {
+    if (_errorMessage != null) {
+      _errorMessage = null;
+      notifyListeners();
+    }
+  }
+
   Future<void> _exec(Future<void> Function() action) async {
     try {
+      _errorMessage = null;
       await action();
       _state = _repository.currentState;
+    } catch (e) {
+      // Revert controller state to repository state (which has been rolled back)
+      _state = _repository.currentState;
+      _errorMessage = 'Failed to update AC state: ${e.toString().replaceAll('Exception: ', '')}';
     } finally {
       notifyListeners();
     }

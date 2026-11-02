@@ -1,0 +1,14 @@
+{
+  "rules": {
+    "desiredState": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".validate": "newData.hasChildren(['power', 'temp', 'mode', 'fanSpeed', 'swing'])"
+    },
+    "confirmedState": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    }
+  }
+}
+

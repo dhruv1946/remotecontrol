@@ -15,9 +15,12 @@ Future<void> ensureSignedIn() async {
   try {
     final auth = FirebaseAuth.instance;
     if (auth.currentUser == null) {
-      await auth.signInAnonymously();
+      final creds = await auth.signInAnonymously();
+      debugPrint('Signed in anonymously: uid=${creds.user?.uid}');
     }
-  } catch (_) {}
+  } catch (e, st) {
+    debugPrint('Firebase anonymous authentication failed: $e\n$st');
+  }
 }
 
 void main() async {
@@ -30,6 +33,7 @@ void main() async {
 
   // ─── Firebase Realtime Database repository ───
   final AcStateRepository repository = FirebaseAcStateRepository(
+    databaseURL: DefaultFirebaseOptions.currentPlatform.databaseURL,
     initialState: const AcState(
       isOn: true,
       temperature: 24,
